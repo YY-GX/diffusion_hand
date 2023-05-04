@@ -28,6 +28,8 @@ from pytorch_fid.inception import InceptionV3
 from pytorch_fid.fid_score import calculate_frechet_distance
 
 from denoising_diffusion_pytorch.version import __version__
+import numpy as np
+import cv2
 
 # constants
 
@@ -779,6 +781,56 @@ class GaussianDiffusion(nn.Module):
         img = self.normalize(img)
         return self.p_losses(img, t, *args, **kwargs)
 
+
+
+# dataset classes
+
+class Dataset_6channel(Dataset):
+    def __init__(
+        self,
+        folder,
+        image_size,
+        exts = ['jpg', 'jpeg', 'png', 'tiff', 'npy'],
+        augment_horizontal_flip = False,
+        convert_image_to = None,
+        img_size = 128
+    ):
+        super().__init__()
+        self.folder = folder
+        self.image_size = image_size
+        self.paths = [p for ext in exts for p in Path(f'{folder}').glob(f'**/*.{ext}')]
+        self.img_size = img_size
+
+        maybe_convert_fn = partial(convert_image_to_fn, convert_image_to) if exists(convert_image_to) else nn.Identity()
+
+        self.transform = T.Compose([
+            T.Lambda(maybe_convert_fn),
+            T.Resize(image_size),
+            T.RandomHorizontalFlip() if augment_horizontal_flip else nn.Identity(),
+            T.CenterCrop(image_size),
+            T.ToTensor()
+        ])
+
+    def __len__(self):
+        return len(self.paths)
+
+    def __getitem__(self, index):
+        path = self.paths[index]
+        img_np = np.load(path)
+        img_np = np.stack([cv2.resize(img_np[:, :, :3],
+                                      dsize=(self.img_size, self.img_size), interpolation=cv2.INTER_CUBIC),
+                           cv2.resize(img_np[:, :, 3:6],
+                                      dsize=(self.img_size, self.img_size), interpolation=cv2.INTER_CUBIC)], 2)\
+            .reshape([self.img_size, self.img_size, 6]).transpose(2, 0, 1)
+        images_torch = torch.from_numpy(img_np)
+        return images_torch / 255
+
+        # path = self.paths[index]
+        # img = Image.open(path)
+        # return self.transform(img)
+
+
+
 # dataset classes
 
 class Dataset(Dataset):
@@ -813,6 +865,10 @@ class Dataset(Dataset):
         img = Image.open(path)
         return self.transform(img)
 
+
+
+
+
 # trainer class
 
 class Trainer(object):
@@ -837,7 +893,9 @@ class Trainer(object):
         split_batches = True,
         convert_image_to = None,
         calculate_fid = True,
-        inception_block_idx = 2048
+        inception_block_idx = 2048,
+        is_6_channel = False,
+        img_size = 128
     ):
         super().__init__()
 
@@ -878,9 +936,14 @@ class Trainer(object):
         self.image_size = diffusion_model.image_size
 
         # dataset and dataloader
-
-        self.ds = Dataset(folder, self.image_size, augment_horizontal_flip = augment_horizontal_flip, convert_image_to = convert_image_to)
-        dl = DataLoader(self.ds, batch_size = train_batch_size, shuffle = True, pin_memory = True, num_workers = cpu_count())
+        if is_6_channel:
+            self.ds = Dataset_6channel(folder, self.image_size, augment_horizontal_flip = augment_horizontal_flip,
+                                       convert_image_to = convert_image_to, img_size = img_size)
+        else:
+            self.ds = Dataset(folder, self.image_size, augment_horizontal_flip = augment_horizontal_flip,
+                              convert_image_to = convert_image_to)
+        dl = DataLoader(self.ds, batch_size = train_batch_size, shuffle = True,
+                        pin_memory = True, num_workers = cpu_count())
 
         dl = self.accelerator.prepare(dl)
         self.dl = cycle(dl)
