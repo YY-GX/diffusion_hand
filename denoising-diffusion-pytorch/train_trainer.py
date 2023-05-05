@@ -89,7 +89,7 @@ trainer = Trainer(
     is_6_channel = args.channel_num == 6,
     results_folder = args.saving_path,
     img_size=args.img_size,
-    save_and_sample_every = 1,
+    save_and_sample_every = 1000,
 )
 
 trainer.train()
