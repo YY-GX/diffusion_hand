@@ -16,10 +16,10 @@ pip install importlib_metadata
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_path', type=str, default="/var/datasets/real_3_channels")
-    parser.add_argument('--saving_path', type=str, default="../checkpoints/real_3_channels")
+    parser.add_argument('--dataset_path', type=str, default="/var/datasets/real_6_channels")
+    parser.add_argument('--saving_path', type=str, default="../checkpoints/real_6_channels")
     parser.add_argument('--img_size', type=int, default=128)
-    parser.add_argument('--channel_num', type=int, default=3)
+    parser.add_argument('--channel_num', type=int, default=6)
 
     parser.add_argument('--epoch', type=int, default=700000)
     parser.add_argument('--bs', type=int, default=32)
@@ -30,26 +30,10 @@ def parse_args():
     return args
 
 
-# def channel6_to_imgs(path, size=128):
-#     ls = []
-#     for img in os.listdir(path):
-#         path_img = os.path.join(path, img)
-#         img_np = np.load(path_img)
-#         img_np = np.stack([cv2.resize(img_np[:, :, :3], dsize=(size, size), interpolation=cv2.INTER_CUBIC),
-#                            cv2.resize(img_np[:, :, 3:6], dsize=(size, size), interpolation=cv2.INTER_CUBIC)], 2)
-#         ls.append(img_np)
-#     return np.array(ls)
-
 
 args = parse_args()
 channel, img_size, bs = args.channel_num, args.img_size, args.bs
 
-
-# images = channel6_to_imgs(args.dataset_path, args.img_size)
-# images = images.reshape([-1, channel, img_size, img_size])
-# print("Dataset shape: ", images.shape)
-# images_torch = torch.from_numpy(images)
-# images_torch = images_torch / 255
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -92,4 +76,4 @@ trainer = Trainer(
     save_and_sample_every = 1000,
 )
 
-trainer.train()
+trainer.eval(4)

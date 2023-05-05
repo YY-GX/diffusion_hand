@@ -1104,3 +1104,48 @@ class Trainer(object):
                 pbar.update(1)
 
         accelerator.print('training complete')
+
+
+    def eval(self, milestone):
+        self.load(milestone)
+
+        accelerator = self.accelerator
+        device = accelerator.device
+
+        for _ in range(self.gradient_accumulate_every):
+            data = next(self.dl).to(device)
+
+        if accelerator.is_main_process:
+            self.ema.update()
+
+            if True:
+                self.ema.ema_model.eval()
+
+                with torch.no_grad():
+                    milestone = self.step // self.save_and_sample_every
+                    batches = num_to_groups(self.num_samples, self.batch_size)
+                    all_images_list = list(map(lambda n: self.ema.ema_model.sample(batch_size=n), batches))
+
+                all_images = torch.cat(all_images_list, dim=0)
+                if self.is_6_channel:
+                    all_images_123 = all_images[:, :3, :, :]
+                    all_images_456 = all_images[:, 3:6, :, :]
+
+                    utils.save_image(all_images_123, str(self.results_folder / f'sample-{milestone}-123.png'),
+                                     nrow=int(math.sqrt(self.num_samples)))
+                    utils.save_image(all_images_456, str(self.results_folder / f'sample-{milestone}-456.png'),
+                                     nrow=int(math.sqrt(self.num_samples)))
+                else:
+                    utils.save_image(all_images, str(self.results_folder / f'sample-{milestone}.png'),
+                                     nrow=int(math.sqrt(self.num_samples)))
+                self.save(milestone)
+
+                # whether to calculate fid
+
+                if exists(self.inception_v3):
+                    if self.is_6_channel:
+                        fid_score = self.fid_score(real_samples=data[:, :3, :, :], fake_samples=all_images_123)
+                    else:
+                        fid_score = self.fid_score(real_samples=data, fake_samples=all_images_123)
+                    accelerator.print(f'fid_score: {fid_score}')
+
