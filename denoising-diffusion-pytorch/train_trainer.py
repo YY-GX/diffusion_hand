@@ -7,6 +7,12 @@ import cv2
 import argparse
 
 
+"""
+pip install opencv-python
+pip install accelerate
+pip install importlib_metadata
+"""
+
 def parse_args():
     parser = argparse.ArgumentParser()
 
@@ -82,7 +88,8 @@ trainer = Trainer(
     calculate_fid = True,              # whether to calculate fid during training
     is_6_channel = args.channel_num == 6,
     results_folder = args.saving_path,
-    img_size=args.img_size
+    img_size=args.img_size,
+    save_and_sample_every = 1,
 )
 
 trainer.train()
