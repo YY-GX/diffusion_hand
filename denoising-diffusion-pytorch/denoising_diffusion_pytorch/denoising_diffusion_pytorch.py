@@ -1024,6 +1024,13 @@ class Trainer(object):
 
     def fid_score(self, real_samples, fake_samples):
 
+        if torch.isnan(fake_samples).any():
+            print(">> fake_samples contains NaN!! Continue!!")
+            return -1
+        elif torch.isnan(real_samples).any():
+            print(">> real_samples contains NaN!! Continue!!")
+            return -1
+
         if self.channels == 1:
             real_samples, fake_samples = map(lambda t: repeat(t, 'b 1 ... -> b c ...', c = 3), (real_samples, fake_samples))
 
@@ -1032,6 +1039,7 @@ class Trainer(object):
 
         m1, s1 = self.calculate_activation_statistics(real_samples)
         m2, s2 = self.calculate_activation_statistics(fake_samples)
+
 
         fid_value = calculate_frechet_distance(m1, s1, m2, s2)
         return fid_value
