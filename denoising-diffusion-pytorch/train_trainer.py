@@ -16,14 +16,14 @@ pip install importlib_metadata
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_path', type=str, default="/var/datasets/real_3_channels")
-    parser.add_argument('--saving_path', type=str, default="../checkpoints/real_3_channels")
+    parser.add_argument('--dataset_path', type=str, default="/var/datasets/real_6_channels")
+    parser.add_argument('--saving_path', type=str, default="../checkpoints/real_6_channels")
     parser.add_argument('--img_size', type=int, default=128)
-    parser.add_argument('--channel_num', type=int, default=3)
+    parser.add_argument('--channel_num', type=int, default=6)
 
     parser.add_argument('--epoch', type=int, default=700000)
     parser.add_argument('--bs', type=int, default=32)
-    parser.add_argument('--lr', type=float, default=8e-5)
+    parser.add_argument('--lr', type=float, default=1e-4)
 
 
     args = parser.parse_args()
