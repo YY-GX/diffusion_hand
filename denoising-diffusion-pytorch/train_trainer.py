@@ -23,7 +23,7 @@ def parse_args():
 
     parser.add_argument('--epoch', type=int, default=700000)
     parser.add_argument('--bs', type=int, default=32)
-    parser.add_argument('--lr', type=float, default=1e-4)
+    parser.add_argument('--lr', type=float, default=8e-5)
 
 
     args = parser.parse_args()
@@ -84,7 +84,7 @@ trainer = Trainer(
     train_num_steps = args.epoch,            # total training steps
     gradient_accumulate_every = 2,    # gradient accumulation steps
     ema_decay = 0.995,                # exponential moving average decay
-    amp = True,                       # turn on mixed precision
+    amp = False,                       # turn on mixed precision  # yy: we should turn this off as it hinder training
     calculate_fid = True,              # whether to calculate fid during training
     is_6_channel = args.channel_num == 6,
     results_folder = args.saving_path,
