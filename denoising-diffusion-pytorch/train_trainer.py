@@ -92,4 +92,6 @@ trainer = Trainer(
     save_and_sample_every = 1000,
 )
 
+trainer.load(12)
+
 trainer.train()
