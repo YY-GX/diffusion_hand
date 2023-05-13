@@ -1114,7 +1114,7 @@ class Trainer(object):
         accelerator.print('training complete')
 
 
-    def eval(self, milestone):
+    def eval(self, milestone, pth):
         self.load(milestone)
 
         accelerator = self.accelerator
@@ -1132,20 +1132,29 @@ class Trainer(object):
                 with torch.no_grad():
                     milestone = self.step // self.save_and_sample_every
                     batches = num_to_groups(self.num_samples, self.batch_size)
+                    # print(">> batches:", batches)
                     all_images_list = list(map(lambda n: self.ema.ema_model.sample(batch_size=n), batches))
 
                 all_images = torch.cat(all_images_list, dim=0)
+                print(all_images.shape)
                 if self.is_6_channel:
                     all_images_123 = all_images[:, :3, :, :]
                     all_images_456 = all_images[:, 3:6, :, :]
 
-                    utils.save_image(all_images_123, str(self.results_folder / f'sample-{milestone}-123.png'),
-                                     nrow=int(math.sqrt(self.num_samples)))
-                    utils.save_image(all_images_456, str(self.results_folder / f'sample-{milestone}-456.png'),
-                                     nrow=int(math.sqrt(self.num_samples)))
+                    # yy: my save:
+                    utils.save_images(all_images_123, pth, is_123=1)
+                    utils.save_images(all_images_456, pth, is_123=0)
+
+                    # utils.save_image(all_images_123, str(self.results_folder / f'sample-{milestone}-123.png'),
+                    #                  nrow=int(math.sqrt(self.num_samples)))
+                    # utils.save_image(all_images_456, str(self.results_folder / f'sample-{milestone}-456.png'),
+                    #                  nrow=int(math.sqrt(self.num_samples)))
                 else:
-                    utils.save_image(all_images, str(self.results_folder / f'sample-{milestone}.png'),
-                                     nrow=int(math.sqrt(self.num_samples)))
+                    # yy: my save:
+                    utils.save_images(all_images, pth)
+
+                    # utils.save_image(all_images, str(self.results_folder / f'sample-{milestone}.png'),
+                    #                  nrow=int(math.sqrt(self.num_samples)))
                 self.save(milestone)
 
                 # whether to calculate fid

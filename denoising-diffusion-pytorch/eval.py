@@ -18,8 +18,9 @@ def parse_args():
 
     parser.add_argument('--dataset_path', type=str, default="/var/datasets/real_6_channels")
     parser.add_argument('--saving_path', type=str, default="../checkpoints/real_6_channels")
+    parser.add_argument('--sample_path', type=str, default="../checkpoints/samples")
     parser.add_argument('--img_size', type=int, default=128)
-    parser.add_argument('--channel_num', type=int, default=6)
+    parser.add_argument('--channel_num', type=int, default=3)
 
     parser.add_argument('--epoch', type=int, default=700000)
     parser.add_argument('--bs', type=int, default=32)
@@ -74,6 +75,7 @@ trainer = Trainer(
     results_folder = args.saving_path,
     img_size=args.img_size,
     save_and_sample_every = 1000,
+    num_samples = 500,
 )
 
-trainer.eval(4)
+trainer.eval(700, pth=args.sample_path)
