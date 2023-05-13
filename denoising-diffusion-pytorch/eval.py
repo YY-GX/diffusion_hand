@@ -75,7 +75,7 @@ trainer = Trainer(
     results_folder = args.saving_path,
     img_size=args.img_size,
     save_and_sample_every = 1000,
-    num_samples = 500,
+    num_samples = 529,
 )
 
 trainer.eval(700, pth=args.sample_path)
