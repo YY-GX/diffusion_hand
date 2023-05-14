@@ -1175,6 +1175,6 @@ class Trainer(object):
                     if self.is_6_channel:
                         fid_score = self.fid_score(real_samples=data[:, :3, :, :], fake_samples=all_images_123)
                     else:
-                        fid_score = self.fid_score(real_samples=data, fake_samples=all_images_123)
+                        fid_score = self.fid_score(real_samples=data, fake_samples=all_images)
                     accelerator.print(f'fid_score: {fid_score}')
 

@@ -16,8 +16,8 @@ pip install importlib_metadata
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset_path', type=str, default="/var/datasets/real_6_channels")
-    parser.add_argument('--saving_path', type=str, default="../checkpoints/real_6_channels")
+    parser.add_argument('--dataset_path', type=str, default="/var/datasets/synth_6_channels_left_right_with_bg")
+    parser.add_argument('--saving_path', type=str, default="../checkpoints/synth_6_channels_left_right_with_bg")
     parser.add_argument('--img_size', type=int, default=128)
     parser.add_argument('--channel_num', type=int, default=6)
 
