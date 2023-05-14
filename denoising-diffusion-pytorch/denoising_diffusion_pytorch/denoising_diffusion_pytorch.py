@@ -26,6 +26,7 @@ from accelerate import Accelerator
 
 from pytorch_fid.inception import InceptionV3
 from pytorch_fid.fid_score import calculate_frechet_distance
+import os
 
 from denoising_diffusion_pytorch.version import __version__
 import numpy as np
@@ -1113,6 +1114,17 @@ class Trainer(object):
 
         accelerator.print('training complete')
 
+    def save_images(self, imgs, pth, is_123=2):
+        for i in range(imgs.shape[0]):
+            img = imgs[i]
+            if is_123 == 0:
+                img_name = "img_456"
+            elif is_123 == 1:
+                img_name = "img_123"
+            else:
+                img_name = "img"
+            utils.save_image(img, os.path.join(pth, f"{img_name}_{i}.png"))
+
 
     def eval(self, milestone, pth):
         self.load(milestone)
@@ -1142,8 +1154,8 @@ class Trainer(object):
                     all_images_456 = all_images[:, 3:6, :, :]
 
                     # yy: my save:
-                    utils.save_images(all_images_123, pth, is_123=1)
-                    utils.save_images(all_images_456, pth, is_123=0)
+                    self.save_images(all_images_123, pth, is_123=1)
+                    self.save_images(all_images_456, pth, is_123=0)
 
                     # utils.save_image(all_images_123, str(self.results_folder / f'sample-{milestone}-123.png'),
                     #                  nrow=int(math.sqrt(self.num_samples)))
@@ -1151,7 +1163,7 @@ class Trainer(object):
                     #                  nrow=int(math.sqrt(self.num_samples)))
                 else:
                     # yy: my save:
-                    utils.save_images(all_images, pth)
+                    self.save_images(all_images, pth)
 
                     # utils.save_image(all_images, str(self.results_folder / f'sample-{milestone}.png'),
                     #                  nrow=int(math.sqrt(self.num_samples)))
