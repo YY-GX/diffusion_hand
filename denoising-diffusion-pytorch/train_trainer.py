@@ -16,17 +16,17 @@ pip install importlib_metadata
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    # parser.add_argument('--dataset_path', type=str, default="/var/datasets/synth_6_channels_left_right_with_bg")
-    # parser.add_argument('--saving_path', type=str, default="../checkpoints/synth_6_channels_left_right_with_bg")
+    parser.add_argument('--dataset_path', type=str, default="/var/datasets/synth_6_channels_left_right_with_bg")
+    parser.add_argument('--saving_path', type=str, default="../checkpoints/synth_6_channels_left_right_with_bg")
 
     # parser.add_argument('--dataset_path', type=str, default="/var/datasets/synth_6_channels_left_right_no_bg")
     # parser.add_argument('--saving_path', type=str, default="../checkpoints/synth_6_channels_left_right_no_bg")
 
-    parser.add_argument('--dataset_path', type=str, default="/var/datasets/synth_3_channels")
-    parser.add_argument('--saving_path', type=str, default="../checkpoints/synth_3_channels")
+    # parser.add_argument('--dataset_path', type=str, default="/var/datasets/synth_3_channels")
+    # parser.add_argument('--saving_path', type=str, default="../checkpoints/synth_3_channels")
 
     parser.add_argument('--img_size', type=int, default=128)
-    parser.add_argument('--channel_num', type=int, default=3)
+    parser.add_argument('--channel_num', type=int, default=6)
 
     parser.add_argument('--epoch', type=int, default=700000)
     parser.add_argument('--bs', type=int, default=32)
@@ -99,6 +99,6 @@ trainer = Trainer(
     save_and_sample_every = 1000,
 )
 
-trainer.load(231)
+trainer.load(293)
 
 trainer.train()
